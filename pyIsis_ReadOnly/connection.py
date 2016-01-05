@@ -26,7 +26,7 @@ class Client(object):
 
         :Example:
 
-        >>> from pyIsis import Client
+        >>> from pyIsis_ReadOnly import Client
         >>> client = Client(hostname="servername",
                             username="Administrator",
                             password="thepassword")

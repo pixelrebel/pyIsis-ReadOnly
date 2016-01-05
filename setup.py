@@ -6,7 +6,7 @@ def readme():
     with open('README.rst') as f:
         return f.read()
 
-setup(name='pyIsis',
+setup(name='pyIsis-ReadOnly',
       version=__version__,
       description='Python wrapper for Avid Isis Client Management Console',
       long_description=readme(),
@@ -23,11 +23,11 @@ setup(name='pyIsis',
           'Topic :: Utilities'
       ],
       keywords='avid isis client mount workspace',
-      url='http://github.com/predat/pyIsis',
+      url='http://github.com/pixelrebel/pyIsis-ReadOnly',
       author='Sylvain Maziere',
       author_email='sylvain@predat.fr',
       license='MIT',
-      packages=['pyIsis'],
+      packages=['pyIsis-ReadOnly'],
       include_package_data=True,
       install_requires=['osa','xmltodict'],
       zip_safe=False)

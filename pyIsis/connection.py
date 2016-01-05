@@ -99,45 +99,6 @@ class Client(object):
                     return int(acc['ioAccess'])
         return None
 
-    def create_user(self, name):
-        self.__check_name__(name)
-        base = self._client.service.GetUserDetails(self.token, 'Create')
-        user = copy.copy(base)
-        user.ioName = name
-        return self._client.service.ModifyUserDetails(self.token, base, user)
-
-    def delete_user(self, name):
-        user = self.get_user(name)
-        if user:
-            user_wrapper = self._client.types.UsersWrapper(deep=True)
-            user_wrapper.users.user = [user]
-            return self._client.service.DeleteUsers(self.token, user_wrapper)
-
-    def change_user_perm(self, username, workspace, permissions=ISIS_USER_NONE):
-        user = self.get_user_details(username)
-        if user:
-            modify_user = copy.deepcopy(user)
-            modify_user.userGroupMemberships.userGroupMembership = []
-            user.userGroupMemberships.userGroupMembership = []
-            for acc in user.workspaceAccesses.access:
-                if acc.outName == workspace:
-                    user.workspaceAccesses.access = [acc]
-                    break
-
-            workspace_to_add = self.get_workspace(workspace)
-            if workspace_to_add:
-                wp_access = self._client.types.WorkspaceAccess(deep=True)
-                wp_access.outID = workspace_to_add.outID
-                wp_access.outName = workspace_to_add.ioName
-                wp_access.ioAccess = permissions
-                modify_user.workspaceAccesses.access = [wp_access]
-                return self._client.service.ModifyUserDetails(self.token,
-                                                          user, modify_user)
-            else:
-                return None
-        else:
-            return None
-
     def get_groups(self):
         return self._client.service.GetUserGroups(self.token).usergroups.user
 
@@ -153,20 +114,6 @@ class Client(object):
         if group:
             return self._client.service.GetUserGroupDetails(self.token, group.outID)
 
-    def create_group(self, name):
-        self.__check_name__(name)
-        base = self._client.service.GetUserGroupDetails(self.token, 'Create')
-        group = copy.copy(base)
-        group.ioName = name
-        return self._client.service.ModifyGroupDetails(self.token, base, group)
-
-    def delete_group(self, name):
-        group = self.get_group(name)
-        if group:
-            group_wrapper = self._client.types.UsersWrapper(deep=True)
-            group_wrapper.users.user = [group]
-            self._client.service.DeleteUsers(self.token, group_wrapper)
-
     def get_workspaces(self):
         return self._client.service.GetWorkspaces(self.token, '').workspaces.workspace
 
@@ -181,29 +128,6 @@ class Client(object):
         workspace = self.get_workspace(name)
         if workspace:
             return self._client.service.GetWorkspaceDetails(self.token, workspace.outID)
-
-    def create_workspace(self, name='default_name', capacity=100, *options):
-        self.__check_name__(name)
-        self.set_byte_count_divisor()
-        base = self._client.service.GetWorkspaceDetails(self.token, 'Create')
-        base.userAccesses = []
-        base.outStorageGroups = []
-        workspace = copy.copy(base)
-        workspace.ioName = name
-        workspace.ioByteCount = str(capacity)
-
-        if self.server_info.serverType == ISIS_5000:
-            workspace.ioProtectionMode = 16
-
-        return self.client._service.ModifyWorkspaceDetails(self.token, base, workspace)
-
-    def delete_workspace(self, name):
-        workspace = self.get_workspace(name)
-        if workspace:
-            workspace_wrapper = self._client.types.WorkspacesWrapper(deep=True)
-            workspace_wrapper.workspaces.workspace = [workspace]
-            self._client.service.DeleteWorkspaces(self.token, workspace_wrapper)
-
 
     def get_system_info(self):
         return self._client.service.GetSystemInfo(self.token)
